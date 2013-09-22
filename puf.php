@@ -105,7 +105,7 @@ if (count($args) >= 2) {
     $time = (isset($args[2]) ? intval($args[2]) : 300);
     $mxtm = time() + $time;
     $port = isset($args[3]) ? intval($args[3]) : 0;
-    $pcks = 0;
+    $pcks = $last = 0;
     $pckt = str_repeat('P', $size);
     while (true) {
         $time = (time() - $strt);
@@ -123,7 +123,9 @@ if (count($args) >= 2) {
             fwrite($fp, $pckt);
             fclose($fp);
         }
-        echo $pcks . " sent   \t" . round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   " . PHP_EOL;
+        if ($last != time()) {
+            echo $pcks . " sent   \t" . round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   \r";
+        }
     }
     if ($cli) {
         exit(PHP_EOL . '========================');
