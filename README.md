@@ -11,11 +11,13 @@ PowerPUF
 PUF works smart. It runs from both CLI as from the web. They each have their advantages, so why not both? The CLI works with the following commands.
 ```
 puf.php (shows help)
-puf.php 1.2.3.4 (floods host on random ports)
-puf.php 1.2.3.4 80 (floods host on fixed port)
-puf.php 1.2.3.4 80 25000 (floods host on fixed port with fixed packet-size, disabling optimised speed)
-puf.php host.io 0 35000 (floods host on random port with fixed packet-size, disabling optimised speed)
-puf.php host.io -nocache (disables optimised speed cache; recalculate)
+puf.php [host/ip] [time=300] [port=random] [size=optimised/cache]
+puf.php 1.2.3.4 (floods host for 300 seconds on random ports)
+puf.php 1.2.3.4 60 (floods host for 60 seconds on random ports)
+puf.php 1.2.3.4 0 80 (floods host on fixed port, indefinitly)
+puf.php 1.2.3.4 300 80 25000 (floods host for 300 seconds on fixed port with fixed packet-size, disabling optimised speed)
+puf.php host.io 0 0 35000 (floods host on random port with fixed packet-size, disabling optimised speed, indefinitly)
+puf.php host.io -nocache (optimised speed without cache)
 puf.php -showcache (shows optimised speed/from cache)
 ```
 
