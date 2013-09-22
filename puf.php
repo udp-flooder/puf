@@ -94,10 +94,6 @@ else if (isset($_SESSION['pufsize'])) {
 
 if (count($args) >= 2) {
     $host = $args[1];
-    $strt = time();
-    $time = (isset($args[2]) ? intval($args[2]) : 300);
-    $mxtm = time() + $time;
-    $port = isset($args[3]) ? intval($args[3]) : 0;
     if (!isset($args[4])) {
         if ($cache && empty($cacheData)) {
             echo '- no cache available' . PHP_EOL;
@@ -105,12 +101,16 @@ if (count($args) >= 2) {
         }
     }
     $size = isset($args[4]) ? intval($args[4]) : getSize();
+    $strt = time();
+    $time = (isset($args[2]) ? intval($args[2]) : 300);
+    $mxtm = time() + $time;
+    $port = isset($args[3]) ? intval($args[3]) : 0;
     $pcks = 0;
     $pckt = str_repeat('P', $size);
     while (true) {
         $time = (time() - $strt);
         if (time() >= $mxtm) {
-            echo $pcks . " sent\t" . round($pcks / $time, 2) . "/s\t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s" . PHP_EOL;
+            echo $pcks . " sent   \t" . round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   " . PHP_EOL;
             break;
         }
         $pcks++;
@@ -123,7 +123,7 @@ if (count($args) >= 2) {
             fwrite($fp, $pckt);
             fclose($fp);
         }
-        
+        echo $pcks . " sent   \t" . round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   " . PHP_EOL;
     }
     if ($cli) {
         exit(PHP_EOL . '========================');
