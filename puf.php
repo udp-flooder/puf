@@ -124,7 +124,7 @@ if (count($args) >= 2) {
             fclose($fp);
         }
         if ($last != time()) {
-            echo $pcks . " sent   \t" . @round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   \r";
+            echo @round($pcks / $time, 2) . "p/s     \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s    \t " . ($mxtm - time()) ." seconds left    \r";
             $last = time();
         }
     }
