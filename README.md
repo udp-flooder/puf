@@ -9,7 +9,7 @@ You may call it whatever you like:
 PowerPUF
 ===
 PUF works smart. It runs from both CLI as from the web. They each have their advantages, so why not both? The CLI works with the following commands.
----
+```
 puf.php (shows help)
 puf.php 1.2.3.4 (floods host on random ports)
 puf.php 1.2.3.4 80 (floods host on fixed port)
@@ -17,7 +17,7 @@ puf.php 1.2.3.4 80 25000 (floods host on fixed port with fixed packet-size, disa
 puf.php host.io 0 35000 (floods host on random port with fixed packet-size, disabling optimised speed)
 puf.php host.io -nocache (disables optimised speed cache; recalculate)
 puf.php -showcache (shows optimised speed/from cache)
----
+```
 
 Wait whut, 'optimised speed cache'?
 ===
