@@ -1,4 +1,4 @@
-PUF: PHP UDP Flooder
+PUF: Phate's UDP Flooder
 ===
 You may call it whatever you like:
 - PHP UDP Flooder
