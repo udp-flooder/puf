@@ -1,6 +1,6 @@
 <?php
 /*
-PUF: Phate's UDP Flooder V1.0.8
+PUF: Phate's UDP Flooder V1.0.9
 
 More info/latest version: 
 https://github.com/udp-flooder/puf
@@ -27,7 +27,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-$version = '1.0.8'; $file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
+$version = '1.0.9'; $file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
 
 // Determine web/CLI
 if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
@@ -158,7 +158,7 @@ function getSize() {
             return $_SESSION['pufsize'];
         }
     }
-    echo '['
+    echo '[NOTICE] Performing size-check, this takes about a minute.' . PHP_EOL;
     $size = 5000;
     $speed = '?';
     $bestsize = 0;
