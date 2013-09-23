@@ -38,7 +38,7 @@ Indeed. The power of an UDP flood lies in the strength of the CPU, the size of t
 
 Does this show the actual average MB/s?
 ---
-Well, yes :-)
+Pretty much. In the end it has ups/downs, but the average is correct.
 
 On server x i'm getting xx mB/s, on y i'm getting xxxx mB/s. What's the difference?
 ---
